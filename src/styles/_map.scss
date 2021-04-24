@@ -1,0 +1,27 @@
+.snake-map {
+  min-width: 720px;
+  border-radius: 4px;
+  display: inline-block;
+  background-color: white;
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  &__col {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    margin: 0 0 1px 1px;
+    border-radius: 4px;
+    border: 1px solid #f1f1f1;
+    &--food {
+      background-color: rgb(255, 165, 0);
+    }
+    &--snake {
+      background-color: rgb(144, 203, 64);
+      &-head {
+        background-color: rgb(106, 150, 47);
+      }
+    }
+  }
+}
