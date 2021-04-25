@@ -1,14 +1,12 @@
 import Cell from "./cell"
-import { LinkedList, createFragment, createElement } from "../../util/index"
+import { LinkedList, createFragment, createElement, isCell } from "../../util/index"
 import defer from "./defer"
 
 export function initMap (snake)
 {
     snake._map = new LinkedList()
     snake._mapNode = null
-
     snake._deferred = defer()
-    snake.$on('update', snake._deferred.update)
 }
 
 export function mapMixin (Snake)
@@ -36,21 +34,22 @@ export function mapMixin (Snake)
         const snake = this
         if (!snake._mapNode)
         {
-            const map = this._createMap()
+            const map = snake._createMap()
             let currentCell = map.head
             const mapFragment = createFragment()
             let rowNode = createRowNode()
-            let y = 0
+            let countColumns = snake.$options.columns
+            let i = 0
             while (currentCell)
             {
-                if (y !== currentCell.data.y)
+                rowNode.append(currentCell.data.render())
+                i++
+                if (i == countColumns)
                 {
-                    y = currentCell.data.y
                     mapFragment.append(rowNode)
                     rowNode = createRowNode()
+                    i = 0
                 }
-
-                rowNode.append(currentCell.data.render())
 
                 currentCell = currentCell.next
             }
@@ -67,6 +66,35 @@ export function findCell (snake, colId, rowId)
         return snake._map.find((data) => data.x === colId && data.y === rowId, snake)
     }
     return null
+}
+
+export function removeClass (snake, cell)
+{
+    addSnakeClass(snake, cell, 'removeClass')
+}
+
+export function addFoodColor (snake, cell)
+{
+    addSnakeClass(snake, cell, 'addFoodColor')
+}
+
+export function addSnakeColor (snake, cell)
+{
+    addSnakeClass(snake, cell, 'addSnakeColor')
+}
+
+export function addSnakeHeadColor (snake, cell)
+{
+    addSnakeClass(snake, cell, 'addSnakeHeadColor')
+}
+
+function addSnakeClass (snake, cell, methodName)
+{
+    if (isCell(cell) && typeof cell[methodName] === 'function')
+    {
+        snake._deferred.add(cell)
+        cell[methodName]()
+    }
 }
 
 function createRowNode ()

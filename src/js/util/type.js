@@ -1,3 +1,5 @@
+import Cell from "../core/map/cell"
+
 export function isString (v)
 {
     return typeof v === 'string'
@@ -28,4 +30,9 @@ export function toArray (list, start)
         ret[i] = list[i + start]
     }
     return ret
+}
+
+export function isCell (v)
+{
+    return v instanceof Cell
 }

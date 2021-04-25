@@ -1,8 +1,3 @@
-export function initRender (snake)
-{
-
-}
-
 export function renderMixin (Snake)
 {
     Snake.prototype._mount = function (el)
@@ -16,8 +11,7 @@ export function renderMixin (Snake)
     {
         const snake = this
         const map = snake._renderMap()
-        snake._renderSnake()
-        snake._renderFoods()
+        snake.$emit('render')
         return map
     }
 
@@ -25,5 +19,6 @@ export function renderMixin (Snake)
     {
         const snake = this
         snake.$emit('update')
+        snake._deferred.update()
     }
 }

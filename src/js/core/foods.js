@@ -1,11 +1,12 @@
-import { randomInt } from "../util/index"
-import { findCell } from "./map/index"
-import Cell from "./map/cell"
+import { isCell, randomInt } from "../util/index"
+import { addFoodColor, findCell, removeClass } from "./map/index"
 
 export function initFood (snake)
 {
     snake._foods = []
     snake._maxFoods = 1
+    snake.$on('render', snake._renderFoods)
+    snake.$on('collision', snake._collisionFoods)
 }
 
 export function foodMixin (Snake)
@@ -16,12 +17,26 @@ export function foodMixin (Snake)
         for (let i = 0; i < snake._foods.length;i++)
         {
             const cell = snake._foods[i]
-            if (cell instanceof Cell)
+            if (isCell(cell))
             {
-                cell.removeClass()
-                snake._deferred.add(cell)
+                removeClass(snake, cell)
             }
             snake._foods.splice(i, 1)
+        }
+    }
+
+    Snake.prototype._cleanFood = function (uid)
+    {
+        const snake = this
+        for (let i = 0; i < snake._foods.length;i++)
+        {
+            const cell = snake._foods[i]
+            if (isCell(cell) && cell.uid == uid)
+            {
+                removeClass(snake, cell)
+                snake._foods.splice(i, 1)
+                break
+            }
         }
     }
 
@@ -31,7 +46,7 @@ export function foodMixin (Snake)
         snake._foods = []
         for (let i = 0;i < snake._maxFoods;i++)
         {
-            const food = this._renderFood()
+            const food = snake._renderFood()
             snake._foods.push(food)
         }
     }
@@ -46,8 +61,7 @@ export function foodMixin (Snake)
         const cell = findCell(snake, colId, rowId)
         if (cell && snake._getEmployedIds().indexOf(cell.uid) < 0)
         {
-            cell.addFoodColor()
-            snake._deferred.add(cell)
+            addFoodColor(snake, cell)
             if (set)
             {
                 snake._foods.push(cell)
@@ -55,7 +69,14 @@ export function foodMixin (Snake)
             return cell
         }
 
-        return snake._renderFood()
+        return snake._renderFood(set)
+    }
+
+    Snake.prototype._collisionFoods = function (uid)
+    {
+        const snake = this
+        snake._renderFood(true)
+        snake._cleanFood(uid)
     }
 
     Snake.prototype._getEmployedIds = function ()

@@ -1,9 +1,9 @@
 import { initEvents } from "./events"
 import { initMap } from "./map/index"
-import { initRender } from "./render"
 import { initSnake } from "./snake"
 import { initFood } from "./foods"
 import { initMove } from "./move"
+import { initGame } from "./game"
 import { query, mergeOptions, defaultOptions } from "../util/index"
 
 export function initMixin (Snake)
@@ -20,10 +20,10 @@ export function initMixin (Snake)
 
         initEvents(snake)
         initMap(snake)
-        initRender(snake)
         initSnake(snake)
         initFood(snake)
         initMove(snake)
+        initGame(snake)
 
         if (snake.$el)
         {

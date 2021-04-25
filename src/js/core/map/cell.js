@@ -23,6 +23,7 @@ export default class Cell
         {
             const node = createElement()
             node.classList.add(this.oldClass)
+            node.setAttribute('id', `${this.x}_${this.y}`)
             this.node = node
         }
         return this.node
