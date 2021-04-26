@@ -7,6 +7,7 @@ export function initMap (snake)
     snake._map = new LinkedList()
     snake._mapNode = null
     snake._deferred = defer()
+    snake.$on('render', snake._renderMap)
 }
 
 export function mapMixin (Snake)
@@ -29,7 +30,7 @@ export function mapMixin (Snake)
         return snake._map
     }
 
-    Snake.prototype._renderMap = function ()
+    Snake.prototype._renderMap = function (fragment)
     {
         const snake = this
         if (!snake._mapNode)
@@ -53,8 +54,12 @@ export function mapMixin (Snake)
 
                 currentCell = currentCell.next
             }
-            snake._mapNode = mapFragment
+            const mapEl = createElement()
+            mapEl.classList.add('snake-map')
+            mapEl.append(mapFragment)
+            snake._mapNode = mapEl
         }
+        fragment.appendChild(snake._mapNode)
         return snake._mapNode
     }
 }
@@ -86,6 +91,11 @@ export function addSnakeColor (snake, cell)
 export function addSnakeHeadColor (snake, cell)
 {
     addSnakeClass(snake, cell, 'addSnakeHeadColor')
+}
+
+export function addSnakeHeadErrorColor (snake, cell)
+{
+    addSnakeClass(snake, cell, 'addSnakeHeadErrorColor')
 }
 
 function addSnakeClass (snake, cell, methodName)

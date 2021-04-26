@@ -1,3 +1,5 @@
+import { createFragment } from "../util/index"
+
 export function renderMixin (Snake)
 {
     Snake.prototype._mount = function (el)
@@ -10,9 +12,9 @@ export function renderMixin (Snake)
     Snake.prototype._render = function ()
     {
         const snake = this
-        const map = snake._renderMap()
-        snake.$emit('render')
-        return map
+        const fragment = createFragment()
+        snake.$emit('render', fragment)
+        return fragment
     }
 
     Snake.prototype._update = function ()

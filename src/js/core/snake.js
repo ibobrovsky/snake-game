@@ -1,18 +1,28 @@
 import { isCell, LinkedList } from "../util/index"
-import { addSnakeColor, addSnakeHeadColor, findCell, removeClass } from "./map/index"
+import { addSnakeColor, addSnakeHeadColor, findCell, removeClass, addSnakeHeadErrorColor } from "./map/index"
 
 export function initSnake (snake)
 {
     snake._snake = new LinkedList()
     snake._lengthStartSnake = 3
     snake.$on('render', snake._renderSnake)
+    snake.$on('collisionSnake', snake._collisionSnake)
+    snake.$on('newGame', snake._newGameSnake)
 }
 
 export function snakeMixin (Snake)
 {
-    Snake.prototype._renderSnake = function ()
+    Snake.prototype._renderSnake = function (clean)
     {
         const snake = this
+        if (clean)
+        {
+            snake._snake.for((cell) => {
+                removeClass(snake, cell)
+            })
+            snake._snake.clean()
+        }
+
         if (!snake._snake.length)
         {
             let centerRowId = Math.ceil(snake.$options.rows / 2)
@@ -39,6 +49,19 @@ export function snakeMixin (Snake)
             }
         }
         return snake._snake
+    }
+
+    Snake.prototype._collisionSnake = function ()
+    {
+        const snake = this
+        addSnakeHeadErrorColor(snake, snake._snake.head.data)
+    }
+
+    Snake.prototype._newGameSnake = function ()
+    {
+        const snake = this
+
+        snake._renderSnake(true)
     }
 }
 

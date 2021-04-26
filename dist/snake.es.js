@@ -6,8 +6,8 @@ var directions = {
 };
 
 var defaultOptions = {
-  rows: 30,
-  columns: 40
+  rows: 20,
+  columns: 20
 };
 function mergeOptions(parent, child) {
   var options = {};
@@ -72,6 +72,10 @@ var Cell = /*#__PURE__*/function () {
     this["class"] = 'snake-map__col snake-map__col--snake-head';
   };
 
+  _proto.addSnakeHeadErrorColor = function addSnakeHeadErrorColor() {
+    this["class"] = 'snake-map__col snake-map__col--snake-head-error';
+  };
+
   _proto.addFoodColor = function addFoodColor() {
     this["class"] = 'snake-map__col snake-map__col--food';
   };
@@ -120,6 +124,9 @@ function createElement(tag) {
 }
 function createFragment() {
   return document.createDocumentFragment();
+}
+function createTextNode(string) {
+  return document.createTextNode(string);
 }
 function query(selector) {
   if (isString(selector)) {
@@ -474,6 +481,326 @@ function invoke(handler, context, args) {
   return res;
 }
 
+var Score = /*#__PURE__*/function () {
+  function Score() {
+    this.score = 0;
+    this.updateScoreCount = 5;
+    this.node = null;
+    this.textNode = null;
+    this.resultNode = null;
+  }
+
+  var _proto = Score.prototype;
+
+  _proto.speed = function speed() {
+    if (this.score <= 50) {
+      return 1;
+    } else if (this.score <= 100) {
+      return 2;
+    } else if (this.score <= 200) {
+      return 3;
+    } else if (this.score <= 400) {
+      return 4;
+    } else if (this.score <= 800) {
+      return 5;
+    } else if (this.score <= 1500) {
+      return 6;
+    } else if (this.score <= 2000) {
+      return 7;
+    } else if (this.score <= 4000) {
+      return 8;
+    } else if (this.score <= 5000) {
+      return 9;
+    } else if (this.score <= 10000) {
+      return 10;
+    }
+  };
+
+  _proto.renderTextNode = function renderTextNode() {
+    if (!this.textNode) {
+      this.textNode = createTextNode('Набрано очков: ');
+    }
+
+    return this.textNode;
+  };
+
+  _proto.renderResultNode = function renderResultNode() {
+    if (!this.resultNode) {
+      var resultNode = createElement();
+      resultNode.classList.add('snake-controls__score-result');
+      resultNode.textContent = "" + this.score;
+      this.resultNode = resultNode;
+    }
+
+    return this.resultNode;
+  };
+
+  _proto.render = function render() {
+    if (!this.node) {
+      var node = createElement();
+      node.classList.add('snake-controls__score');
+      var textNode = this.renderTextNode();
+      var resultNode = this.renderResultNode();
+      node.appendChild(textNode);
+      node.appendChild(resultNode);
+      this.node = node;
+    }
+
+    return this.node;
+  };
+
+  _proto.update = function update() {
+    if (this.score <= 50) {
+      this.updateScoreCount = 5;
+    } else if (this.score <= 100) {
+      this.updateScoreCount = 10;
+    } else if (this.score <= 200) {
+      this.updateScoreCount = 15;
+    } else if (this.score <= 400) {
+      this.updateScoreCount = 20;
+    } else if (this.score <= 800) {
+      this.updateScoreCount = 25;
+    } else if (this.score <= 1500) {
+      this.updateScoreCount = 30;
+    } else if (this.score <= 2000) {
+      this.updateScoreCount = 35;
+    } else if (this.score <= 4000) {
+      this.updateScoreCount = 40;
+    } else if (this.score <= 5000) {
+      this.updateScoreCount = 45;
+    } else if (this.score <= 10000) {
+      this.updateScoreCount = 50;
+    }
+
+    this.score += this.updateScoreCount;
+    var resultNode = this.renderResultNode();
+    resultNode.innerText = this.score;
+  };
+
+  _proto.clear = function clear() {
+    this.score = 0;
+    this.updateScoreCount = 5;
+    var resultNode = this.renderResultNode();
+    resultNode.innerText = this.score;
+  };
+
+  _proto.normalizeScore = function normalizeScore(score) {
+    return Number(parseInt(score, 10));
+  };
+
+  return Score;
+}();
+
+var Speed = /*#__PURE__*/function () {
+  function Speed() {
+    this.speed = 1;
+    this.maxSpeed = 10;
+    this.timeout = 150;
+    this.node = null;
+    this.textNode = null;
+    this.resultNode = null;
+    this.speedIntervals = {
+      1: 150,
+      2: 140,
+      3: 130,
+      4: 120,
+      5: 110,
+      6: 100,
+      7: 80,
+      8: 60,
+      9: 40,
+      10: 20
+    };
+  }
+
+  var _proto = Speed.prototype;
+
+  _proto.renderTextNode = function renderTextNode() {
+    if (!this.textNode) {
+      this.textNode = createTextNode('Скорость: ');
+    }
+
+    return this.textNode;
+  };
+
+  _proto.speedInterval = function speedInterval() {
+    return this.speedIntervals[this.speed] || this.speedIntervals[this.maxSpeed];
+  };
+
+  _proto.renderResultNode = function renderResultNode() {
+    if (!this.resultNode) {
+      var resultNode = createElement();
+      resultNode.classList.add('snake-controls__speed-result');
+      resultNode.textContent = "" + this.speed;
+      this.resultNode = resultNode;
+    }
+
+    return this.resultNode;
+  };
+
+  _proto.render = function render() {
+    if (!this.node) {
+      var node = createElement();
+      node.classList.add('snake-controls__speed');
+      var textNode = this.renderTextNode();
+      var resultNode = this.renderResultNode();
+      node.appendChild(textNode);
+      node.appendChild(resultNode);
+      this.node = node;
+    }
+
+    return this.node;
+  };
+
+  _proto.update = function update(newSpeed) {
+    newSpeed = this.normalizeSpeed(newSpeed);
+
+    if (newSpeed === this.speed || newSpeed > this.maxSpeed) {
+      return;
+    }
+
+    this.speed = newSpeed;
+    var resultNode = this.renderResultNode();
+    resultNode.innerText = this.speed;
+  };
+
+  _proto.normalizeSpeed = function normalizeSpeed(speed) {
+    return Number(parseInt(speed, 10));
+  };
+
+  return Speed;
+}();
+
+var Buttons = /*#__PURE__*/function () {
+  function Buttons() {
+    this.node = null;
+    this.newGameNode = null;
+    this.StartStopNode = null;
+  }
+
+  var _proto = Buttons.prototype;
+
+  _proto.render = function render(snake) {
+    if (!this.node) {
+      var node = createElement();
+      node.classList.add('snake-controls__buttons');
+      node.appendChild(this.renderStartStop(snake));
+      node.appendChild(this.renderNewGame(snake));
+      this.node = node;
+    }
+
+    return this.node;
+  };
+
+  _proto.renderNewGame = function renderNewGame(snake) {
+    if (!this.newGameNode) {
+      var node = createElement('button');
+      node.classList.add('snake-controls__btn');
+      node.setAttribute('type', 'button');
+      node.textContent = 'Новая игра';
+      node.addEventListener('click', function (e) {
+        snake.newGame();
+      });
+      this.newGameNode = node;
+    }
+
+    return this.newGameNode;
+  };
+
+  _proto.renderStartStop = function renderStartStop(snake) {
+    if (!this.StartStopNode) {
+      var node = createElement('button');
+      node.classList.add('snake-controls__btn');
+      node.setAttribute('type', 'button');
+      node.textContent = 'Старт';
+      var buttons = this;
+      node.addEventListener('click', function (e) {
+        snake.startStop();
+        buttons.updateStartStopBtn(snake);
+      });
+      this.StartStopNode = node;
+    }
+
+    return this.StartStopNode;
+  };
+
+  _proto.updateStartStopBtn = function updateStartStopBtn(snake) {
+    var text = 'Старт';
+
+    if (!snake._pause) {
+      text = 'Пауза';
+    }
+
+    var node = this.renderStartStop();
+    var curText = node.innerText;
+
+    if (text !== curText) {
+      node.innerText = text;
+    }
+  };
+
+  return Buttons;
+}();
+
+function initControls(snake) {
+  snake._score = new Score();
+  snake._speed = new Speed();
+  snake._buttons = new Buttons();
+  snake._controlsNode = null;
+  snake.$on('render', snake._renderControls);
+  snake.$on('newGame', snake._newGameControls);
+  snake.$on('collisionFood', snake._collisionFoodControls);
+}
+function controlsMixin(Snake) {
+  Snake.prototype._renderControls = function (fragment) {
+    var snake = this;
+
+    if (!snake._controlsNode) {
+      var controlsEl = createElement();
+      controlsEl.classList.add('snake-controls');
+      controlsEl.appendChild(snake._score.render());
+      controlsEl.appendChild(snake._buttons.render(snake));
+      controlsEl.appendChild(snake._speed.render());
+      snake._controlsNode = controlsEl;
+    }
+
+    fragment.appendChild(snake._controlsNode);
+    return snake._controlsNode;
+  };
+
+  Snake.prototype._newGameControls = function () {
+    var snake = this;
+    clearScore(snake);
+    clearSpeed(snake);
+
+    snake._buttons.updateStartStopBtn(snake);
+  };
+
+  Snake.prototype._collisionFoodControls = function () {
+    var snake = this;
+    updateScore(snake);
+    updateSpeed$2(snake, snake._score.speed());
+  };
+}
+function clearScore(snake) {
+  snake._score.clear();
+}
+function updateScore(snake) {
+  snake._score.update();
+}
+function clearSpeed(snake) {
+  snake._speed.update(1);
+}
+function updateSpeed$2(snake, newSpeed) {
+  var bEmit = newSpeed !== snake._speed.speed;
+
+  snake._speed.update(newSpeed);
+
+  if (bEmit) {
+    snake.$emit('updateSpeed', newSpeed);
+  }
+}
+
 var defer = function defer() {
   var cells = [];
 
@@ -519,6 +846,7 @@ function initMap(snake) {
   snake._map = new LinkedList();
   snake._mapNode = null;
   snake._deferred = defer();
+  snake.$on('render', snake._renderMap);
 }
 function mapMixin(Snake) {
   Snake.prototype._createMap = function () {
@@ -537,7 +865,7 @@ function mapMixin(Snake) {
     return snake._map;
   };
 
-  Snake.prototype._renderMap = function () {
+  Snake.prototype._renderMap = function (fragment) {
     var snake = this;
 
     if (!snake._mapNode) {
@@ -562,9 +890,13 @@ function mapMixin(Snake) {
         currentCell = currentCell.next;
       }
 
-      snake._mapNode = mapFragment;
+      var mapEl = createElement();
+      mapEl.classList.add('snake-map');
+      mapEl.append(mapFragment);
+      snake._mapNode = mapEl;
     }
 
+    fragment.appendChild(snake._mapNode);
     return snake._mapNode;
   };
 }
@@ -589,6 +921,9 @@ function addSnakeColor(snake, cell) {
 function addSnakeHeadColor(snake, cell) {
   addSnakeClass(snake, cell, 'addSnakeHeadColor');
 }
+function addSnakeHeadErrorColor(snake, cell) {
+  addSnakeClass(snake, cell, 'addSnakeHeadErrorColor');
+}
 
 function addSnakeClass(snake, cell, methodName) {
   if (isCell(cell) && typeof cell[methodName] === 'function') {
@@ -608,10 +943,20 @@ function initSnake(snake) {
   snake._snake = new LinkedList();
   snake._lengthStartSnake = 3;
   snake.$on('render', snake._renderSnake);
+  snake.$on('collisionSnake', snake._collisionSnake);
+  snake.$on('newGame', snake._newGameSnake);
 }
 function snakeMixin(Snake) {
-  Snake.prototype._renderSnake = function () {
+  Snake.prototype._renderSnake = function (clean) {
     var snake = this;
+
+    if (clean) {
+      snake._snake["for"](function (cell) {
+        removeClass(snake, cell);
+      });
+
+      snake._snake.clean();
+    }
 
     if (!snake._snake.length) {
       var centerRowId = Math.ceil(snake.$options.rows / 2);
@@ -635,6 +980,17 @@ function snakeMixin(Snake) {
     }
 
     return snake._snake;
+  };
+
+  Snake.prototype._collisionSnake = function () {
+    var snake = this;
+    addSnakeHeadErrorColor(snake, snake._snake.head.data);
+  };
+
+  Snake.prototype._newGameSnake = function () {
+    var snake = this;
+
+    snake._renderSnake(true);
   };
 }
 function pushHeadSnake(snake, nextCell) {
@@ -669,9 +1025,20 @@ function initFood(snake) {
   snake._foods = [];
   snake._maxFoods = 1;
   snake.$on('render', snake._renderFoods);
-  snake.$on('collision', snake._collisionFoods);
+  snake.$on('collisionFood', snake._collisionFood);
+  snake.$on('newGame', snake._newGameFoods);
+  snake.$on('updateSpeed', updateSpeed$1);
 }
 function foodMixin(Snake) {
+  Snake.prototype._newGameFoods = function () {
+    var snake = this;
+    snake._maxFoods = 1;
+
+    snake._cleanFoods();
+
+    snake._renderFoods();
+  };
+
   Snake.prototype._cleanFoods = function () {
     var snake = this;
 
@@ -681,9 +1048,9 @@ function foodMixin(Snake) {
       if (isCell(cell)) {
         removeClass(snake, cell);
       }
-
-      snake._foods.splice(i, 1);
     }
+
+    snake._foods = [];
   };
 
   Snake.prototype._cleanFood = function (uid) {
@@ -709,7 +1076,9 @@ function foodMixin(Snake) {
     for (var i = 0; i < snake._maxFoods; i++) {
       var food = snake._renderFood();
 
-      snake._foods.push(food);
+      if (food) {
+        snake._foods.push(food);
+      }
     }
   };
 
@@ -732,10 +1101,22 @@ function foodMixin(Snake) {
     return snake._renderFood(set);
   };
 
-  Snake.prototype._collisionFoods = function (uid) {
+  Snake.prototype._collisionFood = function (uid) {
     var snake = this;
+    var max = snake._maxFoods;
+    var countCells = snake.$options.rows * snake.$options.columns;
+    var emptyCells = countCells - (snake._snake.length + snake._foods.length - 1);
 
-    snake._renderFood(true);
+    if (max > emptyCells) {
+      max = emptyCells;
+    }
+
+    var length = snake._foods.length - 1;
+    var countNewFoods = max - length;
+
+    for (var i = 0; i < countNewFoods; i++) {
+      snake._renderFood(true);
+    }
 
     snake._cleanFood(uid);
   };
@@ -760,6 +1141,28 @@ function foodMixin(Snake) {
   };
 }
 
+function updateSpeed$1(speed) {
+  var snake = this;
+
+  switch (speed) {
+    case 3:
+      snake._maxFoods = 2;
+      break;
+
+    case 5:
+      snake._maxFoods = 3;
+      break;
+
+    case 7:
+      snake._maxFoods = 4;
+      break;
+
+    case 9:
+      snake._maxFoods = 5;
+      break;
+  }
+}
+
 function initMove(snake) {
   snake._direction = directions.right;
   snake._step = false;
@@ -767,6 +1170,7 @@ function initMove(snake) {
   document.addEventListener('keydown', function (e) {
     onKeyDown(snake, e);
   });
+  snake.$on('newGame', snake._newGameMove);
 }
 function moveMixin(Snake) {
   Snake.prototype._move = function () {
@@ -774,21 +1178,37 @@ function moveMixin(Snake) {
     var headSnake = snake._snake.head.data;
     var nextCell = getNextCol(snake, headSnake.x, headSnake.y);
 
-    if (isCollision(snake, nextCell)) {
-      snake.$emit('collision', nextCell.uid);
-      snake._collision = true;
+    if (isCollisionSnake(snake, nextCell)) {
+      snake.$emit('collisionSnake');
+      snake._isEndGame = true;
+
+      snake._update();
+
+      return;
     }
 
-    pushHeadSnake(snake, nextCell);
+    if (isCollisionFood(snake, nextCell)) {
+      snake.$emit('collisionFood', nextCell.uid);
+      snake._collision = true;
+    }
 
     if (!snake._collision) {
       unshiftTailSnake(snake);
     }
 
+    pushHeadSnake(snake, nextCell);
+
     snake._update();
 
     snake._collision = false;
     snake._step = true;
+  };
+
+  Snake.prototype._newGameMove = function () {
+    var snake = this;
+    snake._step = false;
+    snake._collision = false;
+    snake._direction = directions.right;
   };
 }
 function onKeyDown(snake, e) {
@@ -886,39 +1306,57 @@ function getNextCol(snake, colId, rowId) {
 
   return null;
 }
-function isCollision(snake, nextCell) {
+function isCollisionFood(snake, nextCell) {
   if (isCell(nextCell)) {
-    var foods = snake._foods.map(function (i) {
+    var foodsUIds = snake._foods.map(function (i) {
       return i.uid;
     });
 
-    return foods.indexOf(nextCell.uid) >= 0;
+    return foodsUIds.indexOf(nextCell.uid) >= 0;
+  }
+
+  return false;
+}
+function isCollisionSnake(snake, nextCell) {
+  if (isCell(nextCell)) {
+    var snakeUIds = snake._snake.toArray().map(function (i) {
+      return i.uid;
+    });
+
+    var index = snakeUIds.indexOf(nextCell.uid);
+    return index >= 0 && index !== snakeUIds.length - 1;
   }
 
   return false;
 }
 
 function initGame(snake) {
-  snake._score = 0;
-  snake._timeout = 150;
-  snake._speed = 1;
   snake._pause = true;
   snake._interval = null;
-  document.addEventListener('keydown', function (e) {
-    onKeyUp(snake, e);
-  });
+  snake._isEndGame = false;
+  snake.$on('updateSpeed', updateSpeed);
 }
 function gameMixin(Snake) {
   Snake.prototype.newGame = function () {
     var snake = this;
+    snake.pause();
     snake.$emit('newGame');
+
+    snake._update();
+
+    snake._isEndGame = false;
   };
 
   Snake.prototype.start = function () {
     var snake = this;
-    clearScore(snake);
+    if (snake._isEndGame) return;
     snake._pause = false;
     return snake._interval = setInterval(function () {
+      if (snake._isEndGame) {
+        snake.pause();
+        return;
+      }
+
       snake._move();
     }, speed(snake));
   };
@@ -932,18 +1370,21 @@ function gameMixin(Snake) {
       snake._pause = true;
     }
   };
-}
-function speed(snake) {
-  return Math.max(20, snake._timeout - 50 * snake._speed);
-}
-function clearScore(snake) {
-  snake._score = 0;
+
+  Snake.prototype.startStop = function () {
+    var snake = this;
+    snake._pause ? snake.start() : snake.pause();
+  };
 }
 
-function onKeyUp(snake, e) {
-  if (e.keyCode == 32) {
-    snake._pause ? snake.start() : snake.pause();
-  }
+function updateSpeed() {
+  var snake = this;
+  snake.pause();
+  snake.start();
+}
+
+function speed(snake) {
+  return snake._speed.speedInterval();
 }
 
 function initMixin(Snake) {
@@ -952,6 +1393,7 @@ function initMixin(Snake) {
     snake.$el = query(el);
     snake.$options = mergeOptions(defaultOptions, options || {});
     initEvents(snake);
+    initControls(snake);
     initMap(snake);
     initSnake(snake);
     initFood(snake);
@@ -974,11 +1416,9 @@ function renderMixin(Snake) {
 
   Snake.prototype._render = function () {
     var snake = this;
-
-    var map = snake._renderMap();
-
-    snake.$emit('render');
-    return map;
+    var fragment = createFragment();
+    snake.$emit('render', fragment);
+    return fragment;
   };
 
   Snake.prototype._update = function () {
@@ -995,6 +1435,7 @@ function Snake(el, options) {
 
 initMixin(Snake);
 eventsMixin(Snake);
+controlsMixin(Snake);
 mapMixin(Snake);
 renderMixin(Snake);
 snakeMixin(Snake);

@@ -17,6 +17,11 @@ export function createFragment ()
     return document.createDocumentFragment()
 }
 
+export function createTextNode (string)
+{
+    return document.createTextNode(string)
+}
+
 export function query (selector)
 {
     if (isString(selector))

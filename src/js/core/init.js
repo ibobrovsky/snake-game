@@ -1,4 +1,5 @@
 import { initEvents } from "./events"
+import { initControls } from "./controls/index"
 import { initMap } from "./map/index"
 import { initSnake } from "./snake"
 import { initFood } from "./foods"
@@ -19,6 +20,7 @@ export function initMixin (Snake)
         )
 
         initEvents(snake)
+        initControls(snake)
         initMap(snake)
         initSnake(snake)
         initFood(snake)

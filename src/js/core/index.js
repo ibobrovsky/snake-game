@@ -1,5 +1,6 @@
 import { initMixin } from "./init"
 import { eventsMixin } from "./events"
+import { controlsMixin } from "./controls/index"
 import { mapMixin } from "./map/index"
 import { renderMixin } from "./render"
 import { snakeMixin } from "./snake"
@@ -14,6 +15,7 @@ function Snake (el, options)
 
 initMixin(Snake)
 eventsMixin(Snake)
+controlsMixin(Snake)
 mapMixin(Snake)
 renderMixin(Snake)
 snakeMixin(Snake)

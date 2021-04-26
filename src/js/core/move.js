@@ -10,6 +10,7 @@ export function initMove (snake)
     document.addEventListener('keydown', (e) => {
         onKeyDown(snake, e)
     })
+    snake.$on('newGame', snake._newGameMove)
 }
 
 export function moveMixin (Snake)
@@ -20,22 +21,38 @@ export function moveMixin (Snake)
         const headSnake = snake._snake.head.data
         const nextCell = getNextCol(snake, headSnake.x, headSnake.y)
 
-        if (isCollision(snake, nextCell))
+        if (isCollisionSnake(snake, nextCell))
         {
-            snake.$emit('collision', nextCell.uid)
-            snake._collision = true
+            snake.$emit('collisionSnake')
+            snake._isEndGame = true
+            snake._update()
+            return
         }
 
-        pushHeadSnake(snake, nextCell)
+        if (isCollisionFood(snake, nextCell))
+        {
+            snake.$emit('collisionFood', nextCell.uid)
+            snake._collision = true
+        }
 
         if (!snake._collision)
         {
             unshiftTailSnake(snake)
         }
 
+        pushHeadSnake(snake, nextCell)
+
         snake._update()
         snake._collision = false
         snake._step = true
+    }
+
+    Snake.prototype._newGameMove = function ()
+    {
+        const snake = this
+        snake._step = false
+        snake._collision = false
+        snake._direction = directions.right
     }
 }
 
@@ -146,12 +163,23 @@ export function getNextCol (snake, colId, rowId)
     return  null
 }
 
-export function isCollision (snake, nextCell)
+export function isCollisionFood (snake, nextCell)
 {
     if (isCell(nextCell))
     {
-        const foods = snake._foods.map(i => i.uid)
-        return foods.indexOf(nextCell.uid) >= 0
+        const foodsUIds = snake._foods.map(i => i.uid)
+        return foodsUIds.indexOf(nextCell.uid) >= 0
+    }
+    return false
+}
+
+export function isCollisionSnake (snake, nextCell)
+{
+    if (isCell(nextCell))
+    {
+        const snakeUIds = snake._snake.toArray().map(i => i.uid)
+        const index = snakeUIds.indexOf(nextCell.uid)
+        return index >= 0 && index !== snakeUIds.length - 1
     }
     return false
 }

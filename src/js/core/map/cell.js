@@ -49,6 +49,11 @@ export default class Cell
         this.class = 'snake-map__col snake-map__col--snake-head'
     }
 
+    addSnakeHeadErrorColor()
+    {
+        this.class = 'snake-map__col snake-map__col--snake-head-error'
+    }
+
     addFoodColor()
     {
         this.class = 'snake-map__col snake-map__col--food'

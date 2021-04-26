@@ -153,8 +153,33 @@ template {
 html, body {
   height: 100%; }
 
+.snake-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+  padding: 10px; }
+  .snake-controls__buttons > * {
+    margin-left: 5px; }
+    .snake-controls__buttons > *:first-child {
+      margin-left: 0; }
+  .snake-controls__btn {
+    cursor: pointer;
+    border: none;
+    background-color: #06b0ff;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px; }
+  .snake-controls__speed, .snake-controls__score {
+    display: inline-flex; }
+  .snake-controls__speed-result, .snake-controls__score-result {
+    background-color: #76E464;
+    color: white;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 5px; }
+
 .snake-map {
-  min-width: 720px;
   border-radius: 4px;
   display: inline-block;
   background-color: white; }
@@ -162,15 +187,17 @@ html, body {
     display: flex;
     flex-wrap: wrap; }
   .snake-map__col {
-    width: 15px;
-    height: 15px;
+    width: 19px;
+    height: 19px;
     display: inline-block;
     margin: 0 0 1px 1px;
     border-radius: 4px;
     border: 1px solid #f1f1f1; }
     .snake-map__col--food {
-      background-color: orange; }
+      background-color: #F4DE15; }
     .snake-map__col--snake {
-      background-color: #90cb40; }
+      background-color: #76E464; }
       .snake-map__col--snake-head {
-        background-color: #6a962f; }
+        background-color: #29AE37; }
+        .snake-map__col--snake-head-error {
+          background-color: #D73636; }

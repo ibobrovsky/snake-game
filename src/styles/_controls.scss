@@ -1,0 +1,35 @@
+.snake-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+  padding: 10px;
+  &__buttons {
+    > * {
+      margin-left: 5px;
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+  }
+  &__btn {
+    cursor: pointer;
+    border: none;
+    background-color: #06b0ff;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+  }
+  &__speed,
+  &__score {
+    display: inline-flex;
+  }
+  &__speed-result,
+  &__score-result {
+    background-color: #76E464;
+    color: white;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 5px;
+  }
+}

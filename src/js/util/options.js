@@ -1,8 +1,8 @@
 import { hasOwn } from "./index"
 
 export const defaultOptions = {
-    rows: 30,
-    columns: 40
+    rows: 20,
+    columns: 20
 }
 
 export function mergeOptions (parent, child)

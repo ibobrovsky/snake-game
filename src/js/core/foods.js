@@ -6,11 +6,21 @@ export function initFood (snake)
     snake._foods = []
     snake._maxFoods = 1
     snake.$on('render', snake._renderFoods)
-    snake.$on('collision', snake._collisionFoods)
+    snake.$on('collisionFood', snake._collisionFood)
+    snake.$on('newGame', snake._newGameFoods)
+    snake.$on('updateSpeed', updateSpeed)
 }
 
 export function foodMixin (Snake)
 {
+    Snake.prototype._newGameFoods = function ()
+    {
+        const snake = this
+        snake._maxFoods = 1
+        snake._cleanFoods()
+        snake._renderFoods()
+    }
+
     Snake.prototype._cleanFoods = function ()
     {
         const snake = this
@@ -21,8 +31,9 @@ export function foodMixin (Snake)
             {
                 removeClass(snake, cell)
             }
-            snake._foods.splice(i, 1)
         }
+
+        snake._foods = []
     }
 
     Snake.prototype._cleanFood = function (uid)
@@ -47,7 +58,10 @@ export function foodMixin (Snake)
         for (let i = 0;i < snake._maxFoods;i++)
         {
             const food = snake._renderFood()
-            snake._foods.push(food)
+            if (food)
+            {
+                snake._foods.push(food)
+            }
         }
     }
 
@@ -72,10 +86,25 @@ export function foodMixin (Snake)
         return snake._renderFood(set)
     }
 
-    Snake.prototype._collisionFoods = function (uid)
+    Snake.prototype._collisionFood = function (uid)
     {
         const snake = this
-        snake._renderFood(true)
+        let max = snake._maxFoods
+        const countCells = snake.$options.rows * snake.$options.columns
+        const emptyCells = countCells - (snake._snake.length + snake._foods.length - 1)
+        if (max > emptyCells)
+        {
+            max = emptyCells
+        }
+
+        const length = snake._foods.length - 1
+
+        const countNewFoods = max - length
+        for (let i = 0;i < countNewFoods;i++)
+        {
+            snake._renderFood(true)
+        }
+
         snake._cleanFood(uid)
     }
 
@@ -93,5 +122,25 @@ export function foodMixin (Snake)
         }
 
         return employedIds
+    }
+}
+
+function updateSpeed (speed)
+{
+    const snake = this
+    switch (speed)
+    {
+        case 3:
+            snake._maxFoods = 2
+            break
+        case 5:
+            snake._maxFoods = 3
+            break
+        case 7:
+            snake._maxFoods = 4
+            break
+        case 9:
+            snake._maxFoods = 5
+            break
     }
 }
